@@ -406,7 +406,7 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 						}
 					}
 				} // End loop through target search keys
-
+				NumHivesProc++
 			} // End loop through RegHive Dump
 
 		} // End looping through hiveMap
@@ -500,8 +500,8 @@ func (r *run) PrintResults(result modules.Result, matchOnly bool) (prints []stri
 	}
 	prints = append(prints, fmt.Sprintf("\n-----------------\n     Registry Results           \n------------------"))
 	for _, reg := range el.Results {
-		prints = append(prints, fmt.Sprintf("Hive: %s, Reg Key Found: %s, Last Modified: %v", reg.Hive, reg.Key, reg.LastWrite))
-		prints = append(prints, fmt.Sprintf("Hive: %s, Reg Key Found: %s, Last Modified: %v", reg.Hive, reg.Key, reg.LastWrite))
+		prints = append(prints, fmt.Sprintf("Hive: %s, Reg Key Found: %s, Last Modified: %s", reg.Hive, reg.Key, reg.LastWrite))
+		prints = append(prints, fmt.Sprintf("Hive: %s, Reg Key Found: %s, Last Modified: %s", reg.Hive, reg.Key, reg.LastWrite))
 	}
 
 	for _, e := range result.Errors {
@@ -512,10 +512,10 @@ func (r *run) PrintResults(result modules.Result, matchOnly bool) (prints []stri
 		panic(err)
 	}
 
-	// prints = append(prints, fmt.Sprintf("Keys Searched  : %d", stats.KeysSearched))
-	// prints = append(prints, fmt.Sprintf("Keys Found     : %d", stats.NumKeysFound))
+	prints = append(prints, fmt.Sprintf("Keys Searched  : %d", stats.KeysSearched))
+	prints = append(prints, fmt.Sprintf("Keys Found     : %d", stats.NumKeysFound))
 	// prints = append(prints, fmt.Sprintf("Values Found   : %d", stats.NumValuesFound))
-	// prints = append(prints, fmt.Sprintf("Hives Processed: %d", stats.NumHivesProc))
+	prints = append(prints, fmt.Sprintf("Hives Processed: %d", stats.NumHivesProc))
 	prints = append(prints, fmt.Sprintf("Total Hits     : %d", stats.TotalHits))
 	// prints = append(prints, fmt.Sprintf("Exec Time      : %v", stats.Exectime))
 

@@ -251,14 +251,16 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 	}
 
 	var HiveList []string
+
+	// Default settings will iterate through all hives found by Rekall
+	var SetDefaultToAll bool
+
 	if r.Parameters.Rekall.TargetHives != nil {
 		HiveList = r.Parameters.Rekall.TargetHives
+		SetDefaultToAll = false
 	} else {
-		HiveList = []string{"SECURITY", "SOFTWARE", "SYSTEM", "SAM", "DEFAULT", "ntuser.dat", "Amcache.hve"}
-	}
-
-	if r.Parameters.Debug {
-		fmt.Println("HiveList: ", HiveList)
+		SetDefaultToAll = true
+		// HiveList = []string{"SECURITY", "SOFTWARE", "SYSTEM", "SAM", "DEFAULT", "ntuser.dat", "Amcache.hve"}
 	}
 
 	/*
@@ -289,6 +291,7 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		var offset, hive string
 		hivesOutput := string(cmdOut)
 		s := strings.Split(hivesOutput, "\n")
+
 		if r.Parameters.Debug {
 			fmt.Println("Checking hives")
 		}
@@ -302,25 +305,32 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 			hiveStuff := hiveStr[len(hiveStr)-1]
 
 			// Build Map of Hives + Memory offset to use for dumping specific hives later
-			for _, curHive := range HiveList {
-				_, present := RegMap[curHive]
-				if hiveStuff == curHive && present == false {
-					if r.Parameters.Debug {
-						fmt.Println("Processing: ", curHive)
-					}
-
-					/*
-						Rekall dumps multple NTUSER.DAT hives from different directories
-						We look for only the NTUSER.DAT from the user directory ??
-					*/
-					if hive == usrDir+"ntuser.dat" && curHive == "NTUSER.DAT" {
-						RegMap[curHive] = offset
-					} else {
+			// If using provided params & NOT default, cycle through params, else build map using all hives found
+			if SetDefaultToAll == false {
+				for _, curHive := range HiveList {
+					_, present := RegMap[curHive]
+					if hiveStuff == curHive && present == false {
 						if r.Parameters.Debug {
-							fmt.Println("Setting", curHive, "with offset:", offset)
+							fmt.Println("Processing: ", curHive)
 						}
-						RegMap[curHive] = offset
+
+						/*
+							Rekall dumps multple NTUSER.DAT hives from different directories
+							We look for only the NTUSER.DAT from the user directory ??
+						*/
+						if hive == usrDir+"ntuser.dat" && curHive == "NTUSER.DAT" {
+							RegMap[curHive] = offset
+						} else {
+							if r.Parameters.Debug {
+								fmt.Println("Setting", curHive, "with offset:", offset)
+							}
+							RegMap[curHive] = offset
+						}
 					}
+				}
+			} else {
+				if _, present := RegMap[hive]; present == false {
+					RegMap[hive] = offset
 				}
 			}
 

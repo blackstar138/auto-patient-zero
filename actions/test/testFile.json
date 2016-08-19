@@ -1,0 +1,39 @@
+{
+    "name": "test Search for Patient Zero (File)",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201608191555
+    },
+    "target": "agents.environment->>'os' = 'windows'",
+    "threat": {
+        "level": "low",
+        "family": "malware"
+    },
+    "operations": [
+        {
+            "module": "file",
+            "parameters": {
+                "searches": {
+                    "iocs": {
+                        "paths": [
+                            "C:/"
+                        ],
+                        "contents": [
+                            "mike",
+                            "secret",
+                            "config"
+                        ],
+                        "names": [
+                            "mike.txt",
+                            "mike.cfg",
+                            "askld.cfg",
+                            "secret.txt"
+                        ]
+                    }
+                }
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

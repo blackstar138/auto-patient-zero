@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
+	// "os/exec"
 	// "io/ioutil"
 	"regexp"
 	"strconv"
@@ -387,11 +387,6 @@ type TimeEntry struct {
 	Time     string
 }
 
-type HostTime struct {
-	Name      string
-	ScoreTime time.Time
-}
-
 type Weight struct {
 	Name  string
 	Score int
@@ -493,7 +488,7 @@ func main() {
 	fmt.Println(divide)
 	// Q) Do you want debug on? y/n
 	fmt.Println("\nQuerying...\n")
-	// time.Sleep(2 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	commands, errors := queryDB()
 	if errors != nil {
@@ -517,106 +512,9 @@ func main() {
 	}
 
 	// Add ArtefactTimes to input argument for printResults()
-	printResults(commands, ActionID, records, artefactTimes, modules, outputMode, destFile)
-
-	// whodunnit(artefactTimes)
+	printResults(ActionID, records, artefactTimes, modules, outputMode, destFile)
 
 }
-
-func whodunnit(artefactTimes map[string][]TimeEntry) WeightList {
-	// timeSlice := make([]time.Time, 0)
-
-	fmt.Println("[info] Entering Patient Zero...")
-
-	arts := make(map[string]time.Time)
-	weights := make(map[string]HostTime)
-	var ht HostTime
-	var layout string
-	for art, tr := range artefactTimes {
-
-		for i := 0; i < len(tr); i++ {
-			switch tr[i].Module {
-			case "file":
-				layout = "2006-01-02 15:04:05 +0000 UTC"
-			case "registry":
-				layout = "2006-01-02 15:04:05Z"
-			case "prefetch":
-				layout = "2006-01-02 15:04:05.999999"
-			}
-			artTime, err := time.Parse(layout, tr[i].Time)
-			if err == nil {
-				arts[tr[i].Agent] = artTime
-			} else {
-
-				if tr[i].Module == "file" {
-					layout = "2006-01-02 15:04:05"
-					artTime, err := time.Parse(layout, tr[i].Time)
-					if err != nil {
-						fmt.Println("failed at ", art)
-						fmt.Println("Time:", tr[i].Time)
-						fmt.Println("Layout:", layout)
-						panic(err)
-					} else {
-						arts[tr[i].Agent] = artTime
-					}
-				}
-				// panic(err)
-			}
-		}
-
-		pl := sortHosts(arts)
-		ht.Name = pl[0].Key
-		ht.ScoreTime = pl[0].Value
-		weights[art] = ht
-		// fmt.Println("Artefact:", art)
-		// fmt.Println("Earliest:", pl[0].Key, "\n")
-		// arts[art] = timeSlice
-	}
-
-	// fmt.Println(weights)
-	hosts := make(map[string]int)
-	for _, ht2 := range weights {
-		if count, present := hosts[ht2.Name]; present == true {
-			count++
-			hosts[ht2.Name] = count
-		} else {
-			hosts[ht2.Name] = 1
-		}
-	}
-	fmt.Println("Before...")
-	fmt.Println(hosts)
-
-	fmt.Println("After...")
-	wl := sortWeights(hosts)
-	fmt.Println(wl)
-	fmt.Println("[info] Leaving Patient Zero...")
-
-	return wl
-
-}
-
-func sortHosts(times map[string]time.Time) PairList {
-	pl := make(PairList, len(times))
-	i := 0
-	for k, v := range times {
-		pl[i] = Pair{k, v}
-		i++
-	}
-	// sort.Sort(sort.Reverse(pl))
-	sort.Sort(pl)
-	return pl
-}
-
-type Pair struct {
-	Key   string
-	Value time.Time
-}
-
-type PairList []Pair
-
-func (p PairList) Len() int           { return len(p) }
-func (p PairList) Less(i, j int) bool { return p[i].Value.Before(p[j].Value) }
-func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func queryUser(question string) (answer string) {
 	reader := bufio.NewReader(os.Stdin)
@@ -626,24 +524,6 @@ func queryUser(question string) (answer string) {
 
 	return strings.ToLower(text)
 }
-
-func sortWeights(weights map[string]int) WeightList {
-	wl := make(WeightList, len(weights))
-	i := 0
-	for k, v := range weights {
-		wl[i] = Weight{k, v}
-		i++
-	}
-	// sort.Sort(sort.Reverse(pl))
-	sort.Sort(wl)
-	return wl
-}
-
-type WeightList []Weight
-
-func (w WeightList) Len() int           { return len(w) }
-func (w WeightList) Less(i, j int) bool { return w[i].Score < (w[j].Score) }
-func (w WeightList) Swap(i, j int)      { w[i], w[j] = w[j], w[i] }
 
 func queryDB() (commands []Command, errors []string) {
 	fmt.Println("[info] Entering queryDB")
@@ -890,9 +770,9 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 				tr.Module = curRec.Module
 				tr.Status = curRec.Status
 				tr.ActionID = curRec.ActionID
-				// if len(v) > 19 {
-				// 	v = v[0:19]
-				// }
+				if len(v) > 19 {
+					v = v[0:19]
+				}
 				tr.Time = v
 
 				k = strings.Replace(k, "\\", "/", -1)
@@ -935,7 +815,7 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 	return prints, records, ArtefactTimes
 }
 
-func printResults(commands []Command, actionID int, records []Record, ArtefactTimes map[string][]TimeEntry, modules []string, outputMode string, destFile string) {
+func printResults(actionID int, records []Record, ArtefactTimes map[string][]TimeEntry, modules []string, outputMode string, destFile string) {
 	fmt.Println("[info] Processing Collected Records...")
 
 	fmt.Println("[info] There are", len(records), "records")
@@ -993,27 +873,6 @@ ul.tab li a:focus, .active {
 	border: 1px solid #ccc;
 	border-top: none;
 }
-
-div.container {
-    width: 100%;
-    margin: auto;
-    border: 1px solid gray;
-}
-
-header, footer {
-    padding: 1em;
-    color: white;
-    background-color: black;
-    clear: left;
-    text-align: center;
-}
-
-article {
-    /*margin-left: 170px;*/
-    border-left: 1px solid gray;
-    padding: 1em;
-    overflow: hidden;
-}
 </style>
 <script>
 	function openEvent(evt, eventName) {
@@ -1044,11 +903,8 @@ article {
 	</head>
 	<body>
 		<ul class="tab">
-			<li><a href="#" class="tablinks" onclick="openEvent(event, 'ActionSummary')">Action Summary</a></li>
-			<li><a href="#" class="tablinks" onclick="openEvent(event, 'Artefacts')">Artefacts</a></li>
-			<li><a href="#" class="tablinks" onclick="openEvent(event, 'PatientZero')">Patient Zero</a></li>
 			<li><a href="#" class="tablinks" onclick="openEvent(event, 'Hosts')">Hosts</a></li>
-			<li><a href="#" class="tablinks" onclick="openEvent(event, 'Statistics')">Statistics</a></li>
+			<li><a href="#" class="tablinks" onclick="openEvent(event, 'Artefacts')">Artefacts</a></li>
 		</ul>
 			`
 		HtmlFooter := `
@@ -1057,97 +913,6 @@ article {
 			`
 
 		prints = append(prints, HtmlHeader)
-
-		/*  Action Summary Tab */
-		prints = append(prints, `		<div id="ActionSummary" class="tabcontent">`)
-		prints = append(prints, `			<div class="container">`)
-		prints = append(prints, `				<header>`)
-		prints = append(prints, `					<h1>Action Summary</h1>`)
-		prints = append(prints, `				</header>`)
-		prints = append(prints, `				<article>`)
-		prints = append(prints, `				  <h1>Action Details</h1>`)
-
-		actID := fmt.Sprintf("				  <p>Action ID: %d</p>", actionID)
-		prints = append(prints, actID)
-
-		actName := fmt.Sprintf("				  <p>Action Name: %s</p>", commands[0].Action.Description)
-		prints = append(prints, actName)
-
-		actTarget := fmt.Sprintf("				  <p>Action Target: %s</p>", commands[0].Action.Target)
-		prints = append(prints, actTarget)
-
-		// actInvest := fmt.Sprintf("				  <p>Investigator: %s</p>", commands[0].Action.Investigators[0].Name)
-		// prints = append(prints, actInvest)
-
-		actThreat := fmt.Sprintf("				  <p>Threat Hunted: %s</p>", commands[0].Action.Threat)
-		prints = append(prints, actThreat)
-
-		actPeriod := fmt.Sprintf(`				  <p>Action Period: "%v" to  "%v"</p>`, commands[0].Action.ValidFrom, commands[0].Action.ExpireAfter)
-		prints = append(prints, actPeriod)
-
-		prints = append(prints, `				</article>`)
-		prints = append(prints, `			</div>`)
-		prints = append(prints, `		</div>`)
-
-		/* Artefact information Tab */
-		prints = append(prints, `		<div id="Artefacts" class="tabcontent">`)
-		for art, tr := range ArtefactTimes {
-			// for art, Tr := range ArtefactTimes {
-			paragraph := fmt.Sprintf("	<h3>%s - %s</h3>", tr[0].Module, art)
-			prints = append(prints, paragraph)
-
-			div := fmt.Sprintf(`	<div id="%s"></div>`, art)
-			prints = append(prints, div)
-
-			script := `	<script type="text/javascript">`
-			prints = append(prints, script)
-
-			// var container = document.getElementById('%s-%s');
-			container := fmt.Sprintf("		var container = document.getElementById('%s');", art)
-			prints = append(prints, container, "		var items = new vis.DataSet([")
-
-			for i := 0; i < len(tr); i++ {
-				if len(tr[i].Time) > 19 {
-					tr[i].Time = tr[i].Time[0:19]
-				}
-
-				if tr[i].Agent != "" {
-					item := fmt.Sprintf("			{id: %d, content: '%s', start: '%s', title: '%s Key'},", i, tr[i].Agent, tr[i].Time, tr[i].Module)
-					prints = append(prints, item)
-				}
-			}
-
-			prints = append(prints, "		]);")
-			prints = append(prints, "		var options = {};")
-			prints = append(prints, "		var timeline = new vis.Timeline(container, items, options);")
-			prints = append(prints, "	</script>")
-		}
-		prints = append(prints, `		</div>`)
-
-		wl := whodunnit(ArtefactTimes)
-		/*  Patient Zero Tab */
-		prints = append(prints, `		<div id="PatientZero" class="tabcontent">`)
-		prints = append(prints, `			<div class="container">`)
-		prints = append(prints, `				<header>`)
-		prints = append(prints, `					<h1>Patient Zero Analysis</h1>`)
-		prints = append(prints, `				</header>`)
-		prints = append(prints, `				<article>`)
-		prints = append(prints, `				  <h1>Top Three Suspects</h1>`)
-
-		prints = append(prints, `				  <p>`)
-		prints = append(prints, `					<ul>`)
-		for i := len(wl) - 1; i >= 0; i-- {
-			p0 := fmt.Sprintf(`						<li>Machine: %s : Score: %d </li>`, wl[i].Name, wl[i].Score)
-			prints = append(prints, p0)
-		}
-		prints = append(prints, `					</ul>`)
-		prints = append(prints, `				  </p>`)
-
-		prints = append(prints, `				</article>`)
-		prints = append(prints, `			</div>`)
-		prints = append(prints, `		</div>`)
-
-		/* Hosts informatino Tab */
 		prints = append(prints, `		<div id="Hosts" class="tabcontent">`)
 		for _, module := range modules {
 			for m := 0; m < len(records); m++ {
@@ -1190,62 +955,38 @@ article {
 		prints = append(prints, `		</div>`)
 
 		// prints2 = append(prints2, HtmlHeader)
+		prints = append(prints, `		<div id="Artefacts" class="tabcontent">`)
+		for art, tr := range ArtefactTimes {
+			// for art, Tr := range ArtefactTimes {
+			paragraph := fmt.Sprintf("	<p>Artefact - %s</p>", art)
+			prints = append(prints, paragraph)
 
-		/*  Statistics Tab */
-		prints = append(prints, `		<div id="Statistics" class="tabcontent">`)
-		prints = append(prints, `			<div class="container">`)
-		prints = append(prints, `					<ul class="tab">`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Global')">Global</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Registry')">Registry</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Prefetch')">Prefetch</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'File')">File</a></li>`)
-		prints = append(prints, `					</ul>`)
-		prints = append(prints, `			</div>`)
-		prints = append(prints, `		</div>`)
+			div := fmt.Sprintf(`	<div id="%s"></div>`, art)
+			prints = append(prints, div)
 
-		prints = append(prints, `		<div id="Global" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `			  <h1>Global Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
-		prints = append(prints, `			</article>`)
-		prints = append(prints, `		</div>`)
+			script := `	<script type="text/javascript">`
+			prints = append(prints, script)
 
-		prints = append(prints, `		<div id="Registry" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `				<h1>Registry Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
-		prints = append(prints, `			</article>`)
-		prints = append(prints, `		</div>`)
+			// var container = document.getElementById('%s-%s');
+			container := fmt.Sprintf("		var container = document.getElementById('%s');", art)
+			prints = append(prints, container, "		var items = new vis.DataSet([")
 
-		prints = append(prints, `		<div id="Prefetch" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `			  <h1>Prefetch Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
-		prints = append(prints, `			</article>`)
-		prints = append(prints, `		</div>`)
+			for i := 0; i < len(tr); i++ {
+				if len(tr[i].Time) > 19 {
+					tr[i].Time = tr[i].Time[0:19]
+				}
 
-		prints = append(prints, `		<div id="File" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `				  <h1>File Search Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `				<article>`)
-		prints = append(prints, `				  <p>Action ID</p>`)
-		prints = append(prints, `				  <p>Action Name</p>`)
-		prints = append(prints, `				  <p>Targets</p>`)
-		prints = append(prints, `				  <p>Investigator</p>`)
-		prints = append(prints, `				  <p>Threat Hunted</p>`)
-		prints = append(prints, `				  <p>Action Period</p>`)
-		prints = append(prints, `				</article>`)
-		prints = append(prints, `			</div>`)
+				if tr[i].Agent != "" {
+					item := fmt.Sprintf("			{id: %d, content: '%s', start: '%s', title: '%s Key'},", i, tr[i].Agent, tr[i].Time, tr[i].Module)
+					prints = append(prints, item)
+				}
+			}
+
+			prints = append(prints, "		]);")
+			prints = append(prints, "		var options = {};")
+			prints = append(prints, "		var timeline = new vis.Timeline(container, items, options);")
+			prints = append(prints, "	</script>")
+		}
 		prints = append(prints, `		</div>`)
 
 		prints = append(prints, HtmlFooter)
@@ -1306,8 +1047,7 @@ article {
 	}
 
 	if outputMode == "timeline" {
-		// f, err := os.Create("/media/sf_Transit/MIG/html/" + filename + ".html")
-		f, err := os.Create("/home/ubuntu/html/" + filename + ".html")
+		f, err := os.Create("/media/sf_Transit/MIG/html/" + filename + ".html")
 		if err != nil {
 			panic(err)
 		}
@@ -1322,9 +1062,7 @@ article {
 		}
 
 		w.Flush()
-	}
-
-	if outputMode == "file" || outputMode == "csv" {
+	} else {
 		if outputMode == "file" {
 			filename = filename + ".txt"
 		} else {
@@ -1348,11 +1086,18 @@ article {
 		w.Flush()
 	}
 
-	if outputMode == "stdout" {
-		for i := 0; i < len(prints); i++ {
-			fmt.Println(prints[i])
-		}
+	//scp -i "blackstar138_aws.pem" ~/Transit/MIG/ReadDB* ubuntu@ec2-52-209-207-211.eu-west-1.compute.amazonaws.com:/home/ubuntu/
+	cmdName := "scp"
+	cmdArgs := []string{"-i", `"~/priv/blackstar138_aws.pem"`, filename, "ec2-user@ec2-52-209-91-245.eu-west-1.compute.amazonaws.com:/var/www/html/vis/examples/timeline"}
+
+	if r.Parameters.ParseDLL == false {
+		cmdArgs = append(cmdArgs, "-c")
 	}
+	cmdOut, err := exec.Command(cmdName, cmdArgs...).Output()
+	if err != nil {
+		panic(err)
+	}
+
 	// if outputMode == "file" {
 	// 	filename = filename + ".txt"
 	// } else {

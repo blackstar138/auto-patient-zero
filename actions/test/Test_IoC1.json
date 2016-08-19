@@ -1,0 +1,48 @@
+{
+    "name": "Rand_IOC-Windows",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201608121304
+    },
+    "target": "agents.environment->>'os' = 'windows'",
+    "threat": {
+        "level": "low",
+        "family": "standard"
+    },
+    "operations": [{
+        "module": "registry",
+        "parameters": {
+            "rekall": {
+                "plugin": "hives",
+                "pluginoptions": [""],
+                "checkvalues": false,
+                "dumpdirectory": "",
+                "targethives": ["SYSTEM", "SOFTWARE", "SAM"]
+            },
+            "regrip": {
+                "regdirectory": "",
+                "reportdirectory": "",
+                "plugins": [""]
+            },
+            "search": {
+                "searchkeys": ["VBoxTray.exe", "Aliases/Names/WinRMRemoteWMIUsers", "HTC", "FileSquirtInstalled"],
+                "searchvalues": [""],
+                "searchdata": [""],
+                "checkdaterange": false
+            }
+        }
+    },
+    {
+        "module": "hosts",
+        "parameters":{
+            "checkarp": true,
+            "checkhosts": true,
+            "checkdns": false,
+            "searchhosts": ["mig-server", "mig-rabbitmq"],
+            "searchdns": ["github.com, oscp.digitcert.com"],
+            "searchips": ["192.168.192.1"]
+        }
+    }],
+    "syntaxversion": 2
+}

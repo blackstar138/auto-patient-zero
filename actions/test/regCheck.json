@@ -1,0 +1,41 @@
+{
+    "name": "Extract and Search windows registry",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201409031800
+    },
+    "target": "agents.environment->>'os' = 'windows'",
+    "threat": {
+        "level": "-",
+        "family": "test"
+    },
+    "operations": [
+        {
+            "module": "hosts",
+            "parameters":{
+                "rekall":{
+                    "plugin": "hives",
+                    "pluginoptions": [""],
+                    "checkvalues": false,
+                    "dumpdirectory": "", 
+                    "targethives": [""],
+                },
+                "regrip" :{
+                    "regdirectory": "",
+                    "reportdirectory": "",
+                    "plugins": [""], 
+                },
+                "search": {
+                    "searchkeys": [""], 
+                    "searchvalues": [""],
+                    "searchdata": [""],
+                    "startdate" : [""],
+                    "enddate" : [""],
+                    "checkdaterange": false
+                },
+            },
+        }
+    ],
+    "syntaxversion": 2
+}

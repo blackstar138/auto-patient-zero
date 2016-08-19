@@ -1,0 +1,25 @@
+{
+    "name": "Search hosts data",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201409031800
+    },
+    "threat": {
+        "level": "-",
+        "family": "test"
+    },
+    "operations": [
+        {
+            "module": "hosts",
+            "parameters":{
+                "checkarp": true, 
+                "checkhosts": true,
+                "checkdns": true, 
+                "searchhosts": ["mig-server", "mig-rabbitmq"], 
+                "searchips": ["192.168.192.1"]
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

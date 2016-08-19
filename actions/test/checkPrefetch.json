@@ -1,0 +1,26 @@
+{
+    "name": "Test: Parse & Search Prefetch Data for known exe's",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201608091228
+    },
+    "target": "agents.environment->>'os' = 'windows'",
+    "threat": {
+        "level": "-",
+        "family": "test"
+    },
+    "operations": [
+        {
+            "module": "prefetch",
+            "parameters":{
+                "parsedll": true, 
+                "dumpresults": false,
+                "dumpdirectory": "C:\\Users\\Downloads\\PrefetchDump\\", 
+                "searchexe": ["ACCESSDATA_FTK_IMAGER.EXE", "AHK2EXE.EXE"], 
+                "searchdll": ["SCRIPT.EXE"]
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

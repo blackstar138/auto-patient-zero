@@ -1,0 +1,24 @@
+-------------------------------------------------
+
+MIG is up and running with one local agent.
+
+This configuration is insecure, do not use it in production yet.
+To make it secure, do the following:
+
+  1. Create a PKI, give a server cert to Rabbitmq, and client certs
+     to the scheduler and the agents. See doc at
+     http://mig.mozilla.org/doc/configuration.rst.html#rabbitmq-tls-configuration
+
+  2. Create *real* investigators and with 2-step authentication of actions, implies investigators need weighting when done.
+
+  3. Enable HTTPS and active authentication in the API. Do not open the API
+     to the world in the current state!
+
+  4. You may want to add TLS to Postgres and tell the scheduler and API to use it.
+
+  5. Change database password of users 'migapi' and 'migscheduler'. Change rabbitmq
+     passwords of users 'scheduler' and 'agent';
+
+Ensure that the RabbitMQ server is setup completely and remote agents are correctly configured.
+
+Now to get started, launch /usr/local/bin/mig-console or /usr/local/bin/mig

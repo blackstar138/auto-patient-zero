@@ -1,0 +1,26 @@
+{
+  "name": "Mike's Test - Example2 module",
+  "target": "environment->>'os' IN ('windows') AND mode='daemon'",
+  "threat": {
+    "family": "malware",
+    "level": "high"
+  },
+  "operations": [
+    {
+      "module": "example",
+       "parameters": {
+          "gethostname": true,
+          "getaddresses": true,
+          "lookuphost":[
+	          "www.google.com"
+           ]
+      }
+    }
+  ],
+  "description": {
+    "author": "Mike",
+    "email": "blackstar138@gmail.com",
+    "revision": 201607201410
+  },
+  "syntaxversion": 2
+}

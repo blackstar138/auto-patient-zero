@@ -1,0 +1,36 @@
+{
+  "name": "Mike's Test",
+  "target": "environment->>'os' IN ('linux','windows') AND mode='daemon'",
+  "threat": {
+    "family": "malware",
+    "level": "high"
+  },
+  "operations": [
+    {
+      "module": "example",
+       "parameters": {
+          "gethostname": true,
+          "getaddresses": true,
+          "lookuphost":[
+	          "www.google.com"
+           ]
+      }
+    },
+    {
+      "module": "prefetch",
+      "parameters":{
+                "parsedll": true, 
+                "dumpresults": false,
+                "dumpdirectory": "C:\\Users\\Downloads\\PrefetchDump\\", 
+                "searchexe": ["ACCESSDATA_FTK_IMAGER.EXE", "AHK2EXE.EXE"], 
+                "searchdll": ["SCRIPT.EXE"]
+      }
+    }
+  ],
+  "description": {
+    "author": "Mike",
+    "email": "blackstar138@gmail.com",
+    "revision": 201607201410
+  },
+  "syntaxversion": 2
+}

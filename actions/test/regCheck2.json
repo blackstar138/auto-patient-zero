@@ -1,0 +1,37 @@
+{
+    "name": "Extract and Search windows registry",
+    "description": {
+        "author": "Mike",
+        "email": "blackstar138@gmail.com",
+        "revision": 201409031800
+    },
+    "target": "agents.environment->>'os' = 'windows'",
+    "threat": {
+        "level": "-",
+        "family": "test"
+    },
+    "operations": [{
+        "module": "registry",
+        "parameters": {
+            "rekall": {
+                "plugin": "hives",
+                "pluginoptions": [""],
+                "checkvalues": false,
+                "dumpdirectory": "",
+                "targethives": ["SYSTEM", "SAM"]
+            },
+            "regrip": {
+                "regdirectory": "",
+                "reportdirectory": "",
+                "plugins": [""]
+            },
+            "search": {
+                "searchkeys": ["VBoxTray.exe", "Aliases/Names/WinRMRemoteWMIUsers"],
+                "searchvalues": [""],
+                "searchdata": [""],
+                "checkdaterange": false
+            }
+        }
+    }],
+    "syntaxversion": 2
+}

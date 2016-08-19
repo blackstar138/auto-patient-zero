@@ -1136,7 +1136,7 @@ article {
 
 		prints = append(prints, `				  <p>`)
 		prints = append(prints, `					<ul>`)
-		for i := 0; i < 3; i++ {
+		for i := len(wl) - 1; i >= 0; i-- {
 			p0 := fmt.Sprintf(`						<li>Machine: %s : Score: %d </li>`, wl[i].Name, wl[i].Score)
 			prints = append(prints, p0)
 		}

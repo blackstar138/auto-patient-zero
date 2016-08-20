@@ -1,0 +1,96 @@
+{
+    "name": "BalckTig.exe",
+    "description": {
+        "author": "Mike Solomon",
+        "email": "blackstar138@gmail.com",
+        "revision": 20160819201402
+    },
+    "target": "environment->>'os'='windows'",
+    "threat": {
+        "level": "high",
+        "family": "malware"
+    },
+    "operations": [
+        {
+            "module": "file",
+            "parameters": {
+                "searches": {
+                    "malwarefiles": {
+                        "paths": [
+                            "C:/Windows",
+                            "C:/Users",
+                            "C:/"
+                        ],
+                        "names": [
+                            "BalckTig.exe",
+                            "BalckTig.exe.config",
+                            "BalckTig.INI",
+                            "l_intl.nls",
+                            "dw.log",
+                            "1640AE7.dmp",
+                            "wshtcpip.dll",
+                            "autoexec.bat",
+                            "DW20.EXE.3.Manifest"
+                        ],
+                        "options": {
+                            "maxdepth": 5
+                        },
+                        "sha2": [
+                            "58208984e462d353c9eba991b5c3f1b7f8aeb13ee28dbab4f6c286ebec434859",
+                        ],
+                        "contents": [
+                            "BalckTig",
+                            "Decrypt",
+                            "$f3ba8976-de62-475a-928d-90a0bd65fce7",
+                            "mscoree.dll",
+                            "<assemblyIdentity version=",
+                            "<requestedExecutionLevel level=",
+                            "ConfuserEx"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "module": "registry",
+            "parameters": {
+                "rekall": {
+                    "plugin": "hives",
+                    "pluginoptions": [
+                        ""
+                    ],
+                    "checkvalues": false,
+                    "dumpdirectory": ""
+                },
+                "search": {
+                    "searchkeys": [
+                        "InstallRoot",
+                        "MSHist012014092220140929"
+                    ],
+                    "searchvalues": [
+                        ""
+                    ],
+                    "searchdata": [
+                        ""
+                    ],
+                    "checkdaterange": false
+                }
+            }
+        },
+        {
+            "module": "prefetch",
+            "parameters": {
+                "parsedll": true,
+                "dumpresults": false,
+                "dumpdirectory": "",
+                "searchexe": [
+                    "BalckTig.exe"
+                ],
+                "searchdll": [
+                    "mscoree.dll"
+                ]
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

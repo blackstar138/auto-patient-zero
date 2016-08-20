@@ -1,0 +1,84 @@
+{
+    "name": "Windows Trojan - my.pho.os s.exe",
+    "description": {
+        "author": "Mike Solomon",
+        "email": "blackstar138@gmail.com",
+        "revision": 20160819181402
+    },
+    "target": "environment->>'os'='windows'",
+    "threat": {
+        "level": "medium",
+        "family": "malware"
+    },
+    "operations": [
+        {
+            "module": "file",
+            "parameters": {
+                "searches": {
+                    "malwarefiles": {
+                        "paths": [
+                            "C:/jdpzwpwzp",
+                            "C:/Users"
+                        ],
+                        "names": [
+                            "kcrypter.exe",
+                            "hTNdBt.dll",
+                            "1700.ini"
+                        ],
+                        "options": {
+                            "maxdepth": 5
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "module": "netstat",
+            "parameters": {
+                "connectedip": [
+                    "191.232.80.55"
+                ]
+            }
+        },
+        {
+            "module": "registry",
+            "parameters": {
+                "rekall": {
+                    "plugin": "hives",
+                    "pluginoptions": [
+                        ""
+                    ],
+                    "checkvalues": false,
+                    "dumpdirectory": ""
+                },
+                "search": {
+                    "searchkeys": [
+                        "AhTNdBt.dll",
+                    ],
+                    "searchvalues": [
+                        ""
+                    ],
+                    "searchdata": [
+                        ""
+                    ],
+                    "checkdaterange": false
+                }
+            }
+        },
+        {
+            "module": "prefetch",
+            "parameters": {
+                "parsedll": true,
+                "dumpresults": false,
+                "dumpdirectory": "",
+                "searchexe": [
+                    "kcrypter.exe"
+                ],
+                "searchdll": [
+                    "msvcrt.dll"
+                ]
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

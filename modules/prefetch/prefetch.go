@@ -380,7 +380,7 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		}
 		for i := 0; i < len(allpr); i++ {
 			var result PrefetchResult
-			if strings.Contains(allpr[i].ExeName, targetExe) {
+			if strings.Contains(strings.ToLower(allpr[i].ExeName), strings.ToLower(targetExe) {
 				result.ExeName = allpr[i].ExeName
 				result.ExecDate = allpr[i].DateExecuted
 				result.RunCount = allpr[i].RunCount
@@ -401,7 +401,7 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		for i := 0; i < len(allpr); i++ {
 			var result PrefetchResult
 			for j := 0; j < len(allpr[i].ResourcesLoaded); j++ {
-				if strings.Contains(allpr[i].ResourcesLoaded[j], targetDLL) {
+				if strings.Contains(strings.ToLower(allpr[i].ResourcesLoaded[j]), strings.ToLower(targetDLL)) {
 					result.DLLName = targetDLL
 					result.ExeName = allpr[i].ExeName
 					result.ExecDate = allpr[i].DateExecuted

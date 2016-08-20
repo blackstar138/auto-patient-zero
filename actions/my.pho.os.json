@@ -1,0 +1,113 @@
+{
+    "name": "Windows Trojan - my.pho.os s.exe",
+    "description": {
+        "author": "Mike Solomon",
+        "email": "blackstar138@gmail.com",
+        "revision": 20160819181402
+    },
+    "target": "environment->>'os'='windows'",
+    "threat": {
+        "level": "medium",
+        "family": "malware"
+    },
+    "operations": [
+        {
+            "module": "file",
+            "parameters": {
+                "searches": {
+                    "malwarefiles": {
+                        "paths": [
+                            "C:/Windows",
+                            "C:/Documents And Settings"
+                        ],
+                        "names": [
+                            "Galaxy2.vbs",
+                            "my.pho.os s.exe",
+                            "R000000000007.clb",
+                            "WScript.exe",
+                            "wshom.ocx",
+                            "xpob2res.dll",
+                            "xpsp2res.dll",
+                            "yhthjyj45678tfgtjtyjyt.cmd",
+                            "yhthjyj45678tfgtjtyjyt.cmd.config"
+                        ],
+                        "options": {
+                            "maxdepth": 5
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "module": "netstat",
+            "parameters": {
+                "connectedip": [
+                    "197.116.123.152"
+                ]
+            }
+        },
+        {
+            "module": "registry",
+            "parameters": {
+                "rekall": {
+                    "plugin": "hives",
+                    "pluginoptions": [
+                        ""
+                    ],
+                    "checkvalues": false,
+                    "dumpdirectory": ""
+                },
+                "search": {
+                    "searchkeys": [
+                        "Applications/my.pho.os s.exe",
+                        ".vbs",
+                        "VBSFile/ScriptEngine",
+                        "CodeIdentifiers {dda3f824-d8cb-441b-834d-be2efd2c1a33}",
+                        "CryptSIPDllGetSignedDataMsg/{C689AAB9-8E78-11D0-8C47-00C04FC295EE}",
+                        "WScript.Shell",
+                        "Fusion/NativeImagesIndex/v2.0.50727_32/NI/1c22df2f/52628d2e",
+                        "yhthjyj45678tfgtjtyjyt.cmd",
+                        "ShellCompatibility/Objects/{B5A7F190-DDA6-4420-B3BA-52453494E6CD}",
+                        "Groove/InstallRoot",
+                        "Applications/CMDRUN.exe",
+                        "shell/open/ddeexec",
+                        "App Paths/CMDRUN.exe",
+                        "NativeImagesIndex/v2.0.50727_32/NI/159a66b8\b1a55bd"
+                    ],
+                    "searchvalues": [
+                        ""
+                    ],
+                    "searchdata": [
+                        ""
+                    ],
+                    "checkdaterange": false
+                }
+            }
+        },
+        {
+            "module": "prefetch",
+            "parameters": {
+                "parsedll": true,
+                "dumpresults": false,
+                "dumpdirectory": "C:\\Users\\Downloads\\PrefetchDump\\",
+                "searchexe": [
+                    "Galaxy2.vbs",
+                    "my.pho.os s.exe",
+                    "R000000000007.clb",
+                    "WScript.exe",
+                    "wshom.ocx",
+                    "xpob2res.dll",
+                    "xpsp2res.dll",
+                    "yhthjyj45678tfgtjtyjyt.cmd"
+                ],
+                "searchdll": [
+                    "GDI32.dll",
+                    "ADVAPI32.dll",
+                    "COMCTL32.dll",
+                    "ole32.dll"
+                ]
+            }
+        }
+    ],
+    "syntaxversion": 2
+}

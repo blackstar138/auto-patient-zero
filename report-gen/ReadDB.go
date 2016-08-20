@@ -563,8 +563,9 @@ func whodunnit(artefactTimes map[string][]TimeEntry) WeightList {
 				// panic(err)
 			}
 		}
-
+		fmt.Println(arts)
 		pl := sortHosts(arts)
+		fmt.Println(pl)
 		ht.Name = pl[0].Key
 		ht.ScoreTime = pl[0].Value
 		weights[art] = ht

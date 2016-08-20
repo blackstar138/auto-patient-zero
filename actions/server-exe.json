@@ -1,0 +1,108 @@
+{
+    "name": "Server.exe Malware",
+    "description": {
+        "author": "Mike Solomon",
+        "email": "blackstar138@gmail.com",
+        "revision": 20160819201402
+    },
+    "target": "environment->>'os'='windows'",
+    "threat": {
+        "level": "medium",
+        "family": "malware"
+    },
+    "operations": [
+        {
+            "module": "file",
+            "parameters": {
+                "searches": {
+                    "malwarefiles": {
+                        "paths": [
+                            "C:/Windows",
+                            "C:/Users"
+                        ],
+                        "names": [
+                            "Server.exe",
+                            "Server.exe.config",
+                            "Server.INI",
+                            "9509549941745f73a85a39c364d7d87d.exe"
+                        ],
+                        "options": {
+                            "maxdepth": 5
+                        },
+                        "sha2": [
+                            "1ec70f9a1094e5eca0c66ca782fdd880d70c5e71ea7c90ea5a07664568e03cde"
+                        ],
+                        "contents": [
+                            "server.exe",
+                            "cmd.exe /c ping 0 -n 2 & del",
+                            "netsh firewall add allowedprogram",
+                            "netsh firewall delete allowedprogram",
+                            "mohamedoka.hopto.org",
+                            "RegistryKeyPermissionCheck"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "module": "registry",
+            "parameters": {
+                "rekall": {
+                    "plugin": "hives",
+                    "pluginoptions": [
+                        ""
+                    ],
+                    "checkvalues": false,
+                    "dumpdirectory": ""
+                },
+                "search": {
+                    "searchkeys": [
+                        "InstallRoot",
+                        "Server.exe"
+                    ],
+                    "searchvalues": [
+                        ""
+                    ],
+                    "searchdata": [
+                        ""
+                    ],
+                    "checkdaterange": false
+                }
+            }
+        },
+        {
+            "module": "prefetch",
+            "parameters": {
+                "parsedll": true,
+                "dumpresults": false,
+                "dumpdirectory": "",
+                "searchexe": [
+                    "server.exe"
+                ],
+                "searchdll": [
+                    "mscoree.dll"
+                ]
+            }
+        },
+        {
+            "module": "netstat",
+            "parameters": {
+                "neighborip": [
+                    "156.211.232.56"
+                ]
+            }
+        },
+        {
+        "module": "hosts",
+        "parameters":{
+            "checkarp": true,
+            "checkhosts": true,
+            "checkdns": false,
+            "searchhosts": ["mohamedoka.hopto.org"],
+            "searchdns": ["mohamedoka.hopto.org"],
+            "searchips": ["156.211.232.56"]
+        }
+    }
+    ],
+    "syntaxversion": 2
+}

@@ -373,6 +373,7 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		Search for Exe's and DLL libraries specified in input parameters
 		- if found, append entry to results slice
 	*/
+	allResults := make([]PrefetchResult, 0)
 	for _, targetExe := range r.Parameters.SearchExe {
 
 		if r.Parameters.Debug {
@@ -380,12 +381,12 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		}
 		for i := 0; i < len(allpr); i++ {
 			var result PrefetchResult
-			if strings.Contains(strings.ToLower(allpr[i].ExeName), strings.ToLower(targetExe) {
+			if strings.Contains(strings.ToLower(allpr[i].ExeName), strings.ToLower(targetExe)) {
 				result.ExeName = allpr[i].ExeName
 				result.ExecDate = allpr[i].DateExecuted
 				result.RunCount = allpr[i].RunCount
-
-				el.prefetch = append(el.prefetch, result)
+				allResults = append(allResults, result)
+				// el.prefetch = append(el.prefetch, result)
 
 				stats.ExesFound++
 				stats.TotalHits++
@@ -406,8 +407,10 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 					result.ExeName = allpr[i].ExeName
 					result.ExecDate = allpr[i].DateExecuted
 					result.RunCount = allpr[i].RunCount
-					el.prefetch = append(el.prefetch, result)
-					fmt.Sprintf("Exe: %s, Date: %s, RunCount: %s", result.ExeName, result.ExecDate, result.RunCount)
+
+					allResults = append(allResults, result)
+					// el.prefetch = append(el.prefetch, result)
+					// fmt.Sprintf("Exe: %s, Date: %s, RunCount: %s", result.ExeName, result.ExecDate, result.RunCount)
 					stats.DLLsFound++
 					stats.TotalHits++
 				}
@@ -415,6 +418,8 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		}
 	}
 
+	// el.prefetch = append(el.prefetch, result)
+	el.prefetch = allResults
 	// marshal the results into a json string
 	*out = r.buildResults(el, stats)
 	timeEnd := time.Now()

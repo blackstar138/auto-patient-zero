@@ -805,7 +805,20 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 									// fmt.Println(mf.FileInfo.Mtime)
 									// arts[mf.File], err = time.Parse(layout, mf.FileInfo.Mtime)
 									// 	// arts[key], err = time.Parse(layout, exeDate)
-									arts[mf.File] = mf.FileInfo.Mtime
+									fmt.Println("Old FileName: ", mf.File)
+									splitName := strings.Split(mf.File, "\\")
+									var FileName string
+									if len(splitName) > 3 {
+										if splitName[len(splitName)-3] == "mike" || splitName[len(splitName)-3] == "Administrator" {
+											splitName[len(splitName)-3] = "User"
+										}
+										FileName = splitName[len(splitName)-3] + "\\" + splitName[len(splitName)-2] + "\\" + splitName[len(splitName)-1]
+									} else {
+										FileName = splitName[len(splitName)-1]
+									}
+									fmt.Println("New Filename: ", FileName)
+									// arts[mf.File] = mf.FileInfo.Mtime
+									arts[FileName] = mf.FileInfo.Mtime
 									tr.Time = mf.FileInfo.Mtime
 
 									strings.ToLower(mf.FileInfo.SHA256)

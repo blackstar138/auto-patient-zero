@@ -1,25 +1,32 @@
-/*
-	@TODO: GPL License 2016
-*/
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// Contributor: Mike Solomon blackstar138@gmail.com
 
 /*
-	@TODO: Description of Prefetch module: 	i) Purpose
-										  	ii) Parameters
-										  	iii) Output
-										  	iv) Example json/input json
-										  	v) How to run it / example output
 
-If you run it, it will return a JSON struct with the hostname and IPs
-of the current endpoint. If you add flag `-p`, it will pretty print the
+If you run it, it will return a JSON struct with array of {exeName, ExecutionTime}
+If you add flag `-p`, it will pretty print the
 results.
 
- $ ./bin/linux/amd64/mig-agent-latest -p -m example <<< '{"class":"parameters", "parameters":{"gethostname": true, "getaddresses": true, "lookuphost": ["www.google.com"]}}'
- [info] using builtin conf
- hostname is fedbox2.jaffa.linuxwall.info
- address is 172.21.0.3/20
- address is fe80::8e70:5aff:fec8:be50/64
- lookedup host www.google.com has IP 74.125.196.106
- stat: 3 stuff found
+Example JSON
+-------------
+
+ {
+    "module": "prefetch",
+    "parameters": {
+        "parsedll": true,
+        "dumpresults": false,
+        "dumpdirectory": "",
+        "searchexe": [
+            "server.exe"
+        ],
+        "searchdll": [
+            "mscoree.dll"
+        ]
+    }
+}
 */
 package prefetch /* import "mig.ninja/mig/modules/prefetch" */
 
@@ -247,9 +254,8 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 	if r.Parameters.ParseDLL == false {
 		for i := 1; i < len(prefetchLines)-1; i++ {
 			line := strings.Split(prefetchLines[i], ",")
-			// lastExe := strings.Fields(line[0])
 
-			pr.DateExecuted = line[0] //lastExe[0] + " " + lastExe[1]
+			pr.DateExecuted = line[0]
 			pr.ExeName = line[3]
 			pr.RunCount = line[4]
 
@@ -410,7 +416,6 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 
 					allResults = append(allResults, result)
 					// el.prefetch = append(el.prefetch, result)
-					// fmt.Sprintf("Exe: %s, Date: %s, RunCount: %s", result.ExeName, result.ExecDate, result.RunCount)
 					stats.DLLsFound++
 					stats.TotalHits++
 				}
@@ -418,7 +423,6 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 		}
 	}
 
-	// el.prefetch = append(el.prefetch, result)
 	el.prefetch = allResults
 	// marshal the results into a json string
 	*out = r.buildResults(el, stats)

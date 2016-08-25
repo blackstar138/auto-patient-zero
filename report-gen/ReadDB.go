@@ -1,3 +1,9 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// Contributor: Mike Solomon blackstar138@gmail.com
+
 package main
 
 import (
@@ -181,13 +187,6 @@ type SearchParams struct {
 	CheckDateRange bool      `json:"checkdaterange,omitempty"`
 }
 
-/* Example Module Structs */
-// type params struct {
-// 	GetHostname  bool     `json:"gethostname"`
-// 	GetAddresses bool     `json:"getaddresses"`
-// 	LookupHost   []string `json:"lookuphost"`
-// }
-
 /* MIG Core Structs */
 type Command struct {
 	ID         int       `json:"id"`
@@ -246,10 +245,6 @@ type elements struct {
 	Addresses    []string            `json:"addresses,omitempty"`
 	LookedUpHost map[string][]string `json:"lookeduphost,omitempty"`
 
-	// Prefetch Module Elements
-	// prefetch []PrefetchResult `json:"prefetchresults,omitempty"`
-
-	// Registry Module Elements
 	results []RegRecord `json:"results,omitempty"`
 }
 
@@ -503,8 +498,6 @@ func main() {
 		return
 	}
 
-	// var ArtefactTimes map[string][]TimeEntry
-
 	// Add ArtefactTimes to return argument of processResults()
 	prints, records, artefactTimes := processResults(commands, modules, ActionID)
 
@@ -518,8 +511,6 @@ func main() {
 
 	// Add ArtefactTimes to input argument for printResults()
 	printResults(commands, ActionID, records, artefactTimes, modules, outputMode, destFile)
-
-	// whodunnit(artefactTimes)
 
 }
 
@@ -569,9 +560,7 @@ func whodunnit(artefactTimes map[string][]TimeEntry) WeightList {
 		ht.Name = pl[0].Key
 		ht.ScoreTime = pl[0].Value
 		weights[art] = ht
-		// fmt.Println("Artefact:", art)
-		// fmt.Println("Earliest:", pl[0].Key, "\n")
-		// arts[art] = timeSlice
+
 	}
 
 	// fmt.Println(weights)
@@ -768,11 +757,6 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 						rec.Module = cmd.Action.Operations[i].Module
 						rec.Status = cmd.Status
 
-						// tr.Agent = cmd.Action.Name
-						// tr.ActionID = cmd.Action.ID
-						// tr.Module = module
-						// tr.Status = cmd.Status
-
 						// arts := make(map[string]time.Time)
 						arts := make(map[string]string)
 
@@ -796,28 +780,19 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 								for _, mf := range sr {
 									out := fmt.Sprintf("%s, %s, %s, %s, %s, %.0f", base, label, cmd.Agent.Name, mf.File, mf.FileInfo.Mtime, mf.FileInfo.Size)
 
-									// time.RFC3339
-									// p.Before, err = time.Parse(time.RFC3339, value)
-									// a.ValidFrom, err = time.Parse("2014-01-01T00:00:00.0Z", orders[1])
-									// layout := "2006-01-02T15:04:05.000Z"
-									// layonut := "2014-01-01T00:00:00.0Z"
-									// t, err := time.Parse(layout, str)
-									// fmt.Println(mf.FileInfo.Mtime)
-									// arts[mf.File], err = time.Parse(layout, mf.FileInfo.Mtime)
-									// 	// arts[key], err = time.Parse(layout, exeDate)
 									fmt.Println("Old FileName: ", mf.File)
 									splitName := strings.Split(mf.File, "\\")
 									var FileName string
 									if len(splitName) > 3 {
 										if splitName[len(splitName)-3] == "mike" || splitName[len(splitName)-3] == "Administrator" {
-											splitName[len(splitName)-3] = "User"
+											splitName[len(splitName)-3] = "USER"
 										}
 										FileName = splitName[len(splitName)-3] + "\\" + splitName[len(splitName)-2] + "\\" + splitName[len(splitName)-1]
 									} else {
 										FileName = splitName[len(splitName)-1]
 									}
 									fmt.Println("New Filename: ", FileName)
-									// arts[mf.File] = mf.FileInfo.Mtime
+
 									arts[FileName] = mf.FileInfo.Mtime
 									tr.Time = mf.FileInfo.Mtime
 
@@ -834,7 +809,7 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 							}
 
 						case "registry":
-							// var el []RegRecord
+
 							var el RegRecords
 							buff, err := json.Marshal(cmd.Results[i].Elements)
 							if err != nil {
@@ -843,14 +818,11 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 
 							err = json.Unmarshal(buff, &el)
 
-							// regrecords = el.registryresults
-							// fmt.Println("Reg Records List: ", el)
 							countReg := 0
-							// for _, reg := range el.registryresults {
+
 							for _, record := range el {
 								for _, reg := range record {
 									countReg++
-									// fmt.Println(countReg, " - reg results")
 									arts[reg.Key] = reg.LastWrite
 									out := fmt.Sprintf("%s, %s, %s, %s, %v", base, cmd.Agent.Name, reg.Hive, reg.Key, reg.LastWrite)
 									prints = append(prints, out)
@@ -891,22 +863,19 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 	// Now we try to build map[artefact][]TimeEntry using the information we already have
 	// fmt.Println("\n\n------------------------------------------\n Testing Bulding map[Artefact][]TimeRecord\n-----------------------------------------------")
 	Times := make([]TimeEntry, 0)
-	// var Times []TimeEntry
+
 	for _, curRec := range records {
 		found := false
 		tmpTimes := make([]TimeEntry, 0)
-		// ArtefactTimes["art"] = make([]TimeEntry, 0)
-		// fmt.Println(ArtefactTimes)
+
 		for k, v := range curRec.Artefacts {
 			if k != "" {
-				// fmt.Println("Checking artefact:", k)
+
 				tr.Agent = curRec.Agent
 				tr.Module = curRec.Module
 				tr.Status = curRec.Status
 				tr.ActionID = curRec.ActionID
-				// if len(v) > 19 {
-				// 	v = v[0:19]
-				// }
+
 				tr.Time = v
 
 				k = strings.Replace(k, "\\", "/", -1)
@@ -915,7 +884,7 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 					ArtefactTimes[k] = make([]TimeEntry, 0)
 				}
 				Times = ArtefactTimes[k]
-				// fmt.Println("Times:", Times)
+
 				if len(Times) == 0 {
 					Times = append(Times, tr)
 					ArtefactTimes[k] = Times
@@ -931,19 +900,10 @@ func processResults(commands []Command, modules []string, targetAction int) (pri
 						}
 					}
 				}
-				// if _, present := ArtefactTimes[k]; present == false {
-				// 	tr.Time = v
-				// }
+
 			}
 		}
 	}
-
-	// for k, v := range ArtefactTimes {
-	// 	fmt.Println("Art:", k)
-	// 	fmt.Println("TimeEntry:", v, "\n")
-	// }
-	// fmt.Println(ArtefactTimes)
-	// fmt.Println("------------------------------------------\n Testing Printing map[Artefact][]TimeRecord\n-----------------------------------------------")
 
 	fmt.Println("[info] Leaving processResults, with", len(records), "records")
 	return prints, records, ArtefactTimes
@@ -1009,7 +969,7 @@ ul.tab li a:focus, .active {
 }
 
 div.container {
-    width: 100%;
+    width: 90%;
     margin: auto;
     border: 1px solid gray;
 }
@@ -1027,6 +987,13 @@ article {
     border-left: 1px solid gray;
     padding: 1em;
     overflow: hidden;
+}
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    text-align: center;
 }
 </style>
 <script>
@@ -1081,22 +1048,19 @@ article {
 		prints = append(prints, `				<article>`)
 		prints = append(prints, `				  <h1>Action Details</h1>`)
 
-		actID := fmt.Sprintf("				  <p>Action ID: %d</p>", actionID)
+		actID := fmt.Sprintf("				  <p><b>Action ID:</b> %d</p>", actionID)
 		prints = append(prints, actID)
 
-		actName := fmt.Sprintf("				  <p>Action Name: %s</p>", commands[0].Action.Description)
+		actName := fmt.Sprintf("				  <p><b>Action Name:</b> %s</p>", commands[0].Action.Name)
 		prints = append(prints, actName)
 
-		actTarget := fmt.Sprintf("				  <p>Action Target: %s</p>", commands[0].Action.Target)
+		actTarget := fmt.Sprintf("				  <p><b>Action Target:</b> %s</p>", commands[0].Action.Target)
 		prints = append(prints, actTarget)
 
-		// actInvest := fmt.Sprintf("				  <p>Investigator: %s</p>", commands[0].Action.Investigators[0].Name)
-		// prints = append(prints, actInvest)
-
-		actThreat := fmt.Sprintf("				  <p>Threat Hunted: %s</p>", commands[0].Action.Threat)
+		actThreat := fmt.Sprintf("				  <p><b>Threat Hunted:</b> %s - %s</p>", commands[0].Action.Threat.Family, commands[0].Action.Threat.Level)
 		prints = append(prints, actThreat)
 
-		actPeriod := fmt.Sprintf(`				  <p>Action Period: "%v" to  "%v"</p>`, commands[0].Action.ValidFrom, commands[0].Action.ExpireAfter)
+		actPeriod := fmt.Sprintf(`				  <p><b>Action Period:</b> "%s" to  "%s"</p>`, commands[0].Action.ValidFrom.String()[0:19], commands[0].Action.ExpireAfter.String()[0:19])
 		prints = append(prints, actPeriod)
 
 		prints = append(prints, `				</article>`)
@@ -1106,7 +1070,7 @@ article {
 		/* Artefact information Tab */
 		prints = append(prints, `		<div id="Artefacts" class="tabcontent">`)
 		for art, tr := range ArtefactTimes {
-			// for art, Tr := range ArtefactTimes {
+
 			paragraph := fmt.Sprintf("	<h3>%s - %s</h3>", tr[0].Module, art)
 			prints = append(prints, paragraph)
 
@@ -1116,7 +1080,6 @@ article {
 			script := `	<script type="text/javascript">`
 			prints = append(prints, script)
 
-			// var container = document.getElementById('%s-%s');
 			container := fmt.Sprintf("		var container = document.getElementById('%s');", art)
 			prints = append(prints, container, "		var items = new vis.DataSet([")
 
@@ -1146,15 +1109,26 @@ article {
 		prints = append(prints, `					<h1>Patient Zero Analysis</h1>`)
 		prints = append(prints, `				</header>`)
 		prints = append(prints, `				<article>`)
-		prints = append(prints, `				  <h1>Top Three Suspects</h1>`)
+		prints = append(prints, `				  <h1>Top Suspects</h1>`)
 
 		prints = append(prints, `				  <p>`)
-		prints = append(prints, `					<ul>`)
+		prints = append(prints, `					<table style="width:40%">`)
+		prints = append(prints, `						<tr>`)
+		prints = append(prints, `							<th style="width:60%">System</th>`)
+		prints = append(prints, `							<th style="width:60%">Score</th>`)
+		prints = append(prints, `						</tr>`)
 		for i := len(wl) - 1; i >= 0; i-- {
-			p0 := fmt.Sprintf(`						<li>Machine: %s : Score: %d </li>`, wl[i].Name, wl[i].Score)
-			prints = append(prints, p0)
+			prints = append(prints, `						<tr>`)
+
+			p0sys := fmt.Sprintf(`							<td>%s</td>`, wl[i].Name)
+			prints = append(prints, p0sys)
+
+			p0score := fmt.Sprintf(`							<td>%d</td>`, wl[i].Score)
+			prints = append(prints, p0score)
+
+			prints = append(prints, `						</tr>`)
 		}
-		prints = append(prints, `					</ul>`)
+		prints = append(prints, `					</table>`)
 		prints = append(prints, `				  </p>`)
 
 		prints = append(prints, `				</article>`)
@@ -1207,60 +1181,77 @@ article {
 
 		/*  Statistics Tab */
 		prints = append(prints, `		<div id="Statistics" class="tabcontent">`)
-		prints = append(prints, `			<div class="container">`)
-		prints = append(prints, `					<ul class="tab">`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Global')">Global</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Registry')">Registry</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Prefetch')">Prefetch</a></li>`)
-		prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'File')">File</a></li>`)
-		prints = append(prints, `					</ul>`)
-		prints = append(prints, `			</div>`)
-		prints = append(prints, `		</div>`)
+		// prints = append(prints, `			<div class="container">`)
+		// prints = append(prints, `					<ul class="tab">`)
+		// prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Global')">Global</a></li>`)
+		// prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Registry')">Registry</a></li>`)
+		// prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'Prefetch')">Prefetch</a></li>`)
+		// prints = append(prints, `						<li><a href="#" class="tablinks" onclick="openEvent(event, 'File')">File</a></li>`)
+		// prints = append(prints, `					</ul>`)
+		// prints = append(prints, `			</div>`)
+		// prints = append(prints, `		</div>`)
 
-		prints = append(prints, `		<div id="Global" class="tabcontent">`)
+		// prints = append(prints, `		<div id="Global" class="tabcontent">`)
 		prints = append(prints, `			<header>`)
-		prints = append(prints, `			  <h1>Global Stats</h1>`)
+		prints = append(prints, `			  <h1>Investigation Statistics</h1>`)
 		prints = append(prints, `			</header>`)
 		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
+
+		totSys := fmt.Sprintf(`			  <p>Total Machines Queried: %s</p>`, commands[0].Action.Counters.Done)
+		prints = append(prints, totSys)
+
+		totRes := fmt.Sprintf(`			  <p>Total Systems With Results: %d</p>`, commands[0].Action.Counters.Success)
+		prints = append(prints, totRes)
+
+		// execTime := commands[0].Action.FinishTime.Sub(commands[0].Action.StartTime)
+		startTime := fmt.Sprintf(`			  <p>Investigation Start: %v</p>`, commands[0].Action.StartTime)
+		prints = append(prints, startTime)
+
+		endTime := fmt.Sprintf(`			  <p>Investigation EndTime: %v</p>`, commands[0].Action.FinishTime)
+		prints = append(prints, endTime)
+		// totHits := fmt.Sprintf(`			  <p>Total Hits: %d</p>`, commands[0].Results)
 		prints = append(prints, `			</article>`)
 		prints = append(prints, `		</div>`)
 
-		prints = append(prints, `		<div id="Registry" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `				<h1>Registry Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
-		prints = append(prints, `			</article>`)
-		prints = append(prints, `		</div>`)
+		// prints = append(prints, `		<div id="Registry" class="tabcontent">`)
+		// prints = append(prints, `			<header>`)
+		// prints = append(prints, `				<h1>Registry Stats</h1>`)
+		// prints = append(prints, `			</header>`)
+		// prints = append(prints, `			<article>`)
+		// prints = append(prints, `			  <p>Keys Searched: </p>`)
+		// prints = append(prints, `			  <p>Keys Found: </p>`)
+		// prints = append(prints, `			  <p>Hives Processed: </p>`)
+		// prints = append(prints, `			  <p>Total Exec Time: </p>`)
+		// prints = append(prints, `			</article>`)
+		// prints = append(prints, `		</div>`)
 
-		prints = append(prints, `		<div id="Prefetch" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `			  <h1>Prefetch Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `			<article>`)
-		prints = append(prints, `			  <p>Action ID</p>`)
-		prints = append(prints, `			  <p>Action Name</p>`)
-		prints = append(prints, `			</article>`)
-		prints = append(prints, `		</div>`)
+		// prints = append(prints, `		<div id="Prefetch" class="tabcontent">`)
+		// prints = append(prints, `			<header>`)
+		// prints = append(prints, `			  <h1>Prefetch Stats</h1>`)
+		// prints = append(prints, `			</header>`)
 
-		prints = append(prints, `		<div id="File" class="tabcontent">`)
-		prints = append(prints, `			<header>`)
-		prints = append(prints, `				  <h1>File Search Stats</h1>`)
-		prints = append(prints, `			</header>`)
-		prints = append(prints, `				<article>`)
-		prints = append(prints, `				  <p>Action ID</p>`)
-		prints = append(prints, `				  <p>Action Name</p>`)
-		prints = append(prints, `				  <p>Targets</p>`)
-		prints = append(prints, `				  <p>Investigator</p>`)
-		prints = append(prints, `				  <p>Threat Hunted</p>`)
-		prints = append(prints, `				  <p>Action Period</p>`)
-		prints = append(prints, `				</article>`)
-		prints = append(prints, `			</div>`)
-		prints = append(prints, `		</div>`)
+		// prints = append(prints, `			<article>`)
+		// prints = append(prints, `			  <p>Prefetch Records Pro</p>`)
+		// prints = append(prints, `			  <p>Action Name</p>`)
+		// prints = append(prints, `			  <p>Action Name</p>`)
+		// prints = append(prints, `			  <p>Action Name</p>`)
+		// prints = append(prints, `			</article>`)
+		// prints = append(prints, `		</div>`)
+
+		// prints = append(prints, `		<div id="File" class="tabcontent">`)
+		// prints = append(prints, `			<header>`)
+		// prints = append(prints, `				  <h1>File Search Stats</h1>`)
+		// prints = append(prints, `			</header>`)
+		// prints = append(prints, `				<article>`)
+		// prints = append(prints, `				  <p>Action ID</p>`)
+		// prints = append(prints, `				  <p>Action Name</p>`)
+		// prints = append(prints, `				  <p>Targets</p>`)
+		// prints = append(prints, `				  <p>Investigator</p>`)
+		// prints = append(prints, `				  <p>Threat Hunted</p>`)
+		// prints = append(prints, `				  <p>Action Period</p>`)
+		// prints = append(prints, `				</article>`)
+		// prints = append(prints, `			</div>`)
+		// prints = append(prints, `		</div>`)
 
 		prints = append(prints, HtmlFooter)
 		fmt.Println("[info]", len(prints), "lines of HTML")
@@ -1281,28 +1272,22 @@ article {
 		for i := 0; i < len(prints); i++ {
 			fmt.Println(prints[i])
 		}
-		// prints = append(prints,)
+
 	default:
 
 		for _, module := range modules {
 			prints = append(prints, fmt.Sprintf("Module: %s\n---------------------------", module))
 			for m := 0; m < len(records); m++ {
 				if records[m].Module == module {
-					// fmt.Println("Module:", records[m].Module)
 					prints = append(prints, fmt.Sprintf("Agent: %s", records[m].Agent))
-					// fmt.Println("Record:", m)
-					// fmt.Println("Action ID:", records[m].ActionID)
-					// fmt.Println("Command ID:", records[m].CommandID)
-					// fmt.Println("Status :", records[m].Status)
 
 					prints = append(prints, fmt.Sprintf("Search: %s", records[m].Search))
 					var countRecs int
 					for k, v := range records[m].Artefacts {
 						countRecs++
-						// fmt.Printf("Artefact %d : File : %s", countRecs, k)
+
 						prints = append(prints, fmt.Sprintf("Artefact %d : File : %s", countRecs, k))
 						prints = append(prints, fmt.Sprintf("           : Date : %s", v))
-						// fmt.Println("---> Modified:", v, "\n")
 					}
 					prints = append(prints, "\n")
 				}
@@ -1367,45 +1352,5 @@ article {
 			fmt.Println(prints[i])
 		}
 	}
-	// if outputMode == "file" {
-	// 	filename = filename + ".txt"
-	// } else {
-	// 	filename = filename + ".csv"
-	// }
-
-	// f, err := os.Create("/media/sf_Transit/MIG/output/"+filename)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// w := bufio.NewWriter(f)
-	// defer f.Close()
-	// for i := 0; i < len(prints); i++ {
-	// 	_, err := w.WriteString(prints[i] + "\n")
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// }
-
-	// w.Flush()
-
-	// } else {
-
-	// 	f, err := os.Create("/media/sf_Transit/MIG/html/"+filename)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	w := bufio.NewWriter(f)
-	// 	defer f.Close()
-	// 	for i := 0; i < len(prints); i++ {
-	// 		_, err := w.WriteString(prints[i] + "\n")
-	// 		if err != nil {
-	// 			panic(err)
-	// 		}
-
-	// 	}
-
-	// 	w.Flush()
-	// }
 
 }

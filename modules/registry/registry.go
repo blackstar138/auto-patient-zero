@@ -1,25 +1,44 @@
-/*
-	@TODO: GPL License 2016
-*/
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//
+// Contributor: Mike Solomon blackstar138@gmail.com
 
 /*
-	@TODO: Description of Registry module: 	i) Purpose
-										  	ii) Parameters
-										  	iii) Output
-										  	iv) Example json/input json
-										  	v) How to run it / example output
 
-If you run it, it will return a JSON struct with the hostname and IPs
-of the current endpoint. If you add flag `-p`, it will pretty print the
+If you run it, it will return a JSON struct with array of {hive, key, LastWriteTime}
+If you add flag `-p`, it will pretty print the
 results.
 
- $ ./bin/linux/amd64/mig-agent-latest -p -m example <<< '{"class":"parameters", "parameters":{"gethostname": true, "getaddresses": true, "lookuphost": ["www.google.com"]}}'
- [info] using builtin conf
- hostname is fedbox2.jaffa.linuxwall.info
- address is 172.21.0.3/20
- address is fe80::8e70:5aff:fec8:be50/64
- lookedup host www.google.com has IP 74.125.196.106
- stat: 3 stuff found
+Example JSON:
+-------------
+{
+    "module": "registry",
+    "parameters": {
+        "rekall": {
+            "plugin": "hives",
+            "pluginoptions": [
+                ""
+            ],
+            "checkvalues": false,
+            "dumpdirectory": ""
+        },
+        "search": {
+            "searchkeys": [
+                "Explerer",
+                "Explerer.exe"
+            ],
+            "searchvalues": [
+                ""
+            ],
+            "searchdata": [
+                ""
+            ],
+            "checkdaterange": false
+        }
+    }
+}
+
 */
 package registry /* import "mig.ninja/mig/modules/registry" */
 
@@ -385,8 +404,6 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 						if strings.Contains(line[2], targetKey) {
 							// Form LastWrite value from date + time stamp
 							lastWrite1 := line[0] + " " + line[1]
-							// Reg.LastWrite, _ = time.Parse(time.RFC3339, lastWrite1)
-							// lastWrite, _ := time.Parse(time.RFC3339, lastWrite1)
 
 							if r.Parameters.Search.CheckDateRange == true {
 								// if lastWrite.After(r.Parameters.Search.StartDate) {
@@ -413,43 +430,6 @@ func (r *run) doModuleStuff(out *string, moduleDone *chan bool) error {
 
 	} else { // case: Rekall.CheckValues == true
 
-		// cmdName := rekall
-		// cmdArgs := []string{
-		// 	"--live", "--plugin", "regdump", "--dump_dir", r.Parameters.Rekall.dumpdirectory,
-		// }
-
-		// cmdOut, err := exec.Command(cmdName, cmdArgs...).Output()
-		// if err != nil { panic(err)	}
-
-		// /* Begin parsing captured output from Rekall Reg Hive dump */
-		// var offset, hive string
-		// regDumpOutput := string(cmdOut)
-		// s := strings.Split(regDumpOutput, "\n")
-		// for i := 2; i < len(s)-1; i++ {
-
-		// 	line := strings.Fields(s[i])
-		// 	offset = line[3]
-		// 	hive = line[1]
-
-		// 	hiveStr := strings.Split(hive, "\\")
-		// 	hiveStuff := hiveStr[len(hiveStr)-1]
-
-		// 	// Build Map of Hives + Memory offset to use for dumping specific hives later
-		// 	for _, curHive := range HiveList {
-		// 		_, present := RegMap[curHive]
-		// 		if hiveStuff == curHive && present == false {
-
-		// 			// Rekall dumps multple NTUSER.DAT hives from different directories
-		// 			// We look for only the NTUSER.DAT from the user directory ??
-		// 			if hive == usrDir+"ntuser.dat" && curHive == "NTUSER.DAT" {
-		// 				RegMap[curHive] = offset
-		// 			} else {
-		// 				RegMap[curHive] = offset
-		// 			}
-		// 		}
-		// 	}
-
-		// }
 	}
 
 	/*
